@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "plaid-mcp": {
+      "command": "bun",
+      "args": ["src/plaid/mcp-server.ts"]
+    },
+    "amazon-orders": {
+      "command": "cargo",
+      "args": ["run", "--quiet", "--release", "--manifest-path", "mcp/amazon-orders/Cargo.toml"]
+    },
+    "target-orders": {
+      "command": "cargo",
+      "args": ["run", "--quiet", "--release", "--manifest-path", "mcp/target-orders/Cargo.toml"]
+    }
+  }
+}

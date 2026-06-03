@@ -1,0 +1,43 @@
+node_modules/
+dist/
+data/*.db
+data/*.db-test
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+data/*.csv
+data/*.log
+test-results/
+src/frontend/bundle.js
+src/frontend/entry.jsx
+.DS_Store
+*.env
+.env.*
+# Editor swap/backup + merge leftovers — may mirror .env secrets
+*.swp
+*.swo
+*~
+*.orig
+*.bak
+# Squall (multi-model review) working dir — internal scratch + review outputs
+# that quote secrets by design. Never track.
+.squall/
+data/*.bak*
+# Stray pasted screenshots / runtime uploads (may show personal financial data)
+src/frontend/uploads/
+# Private categorization profile (personal blocks / line codes); default.json ships
+profiles/local.json
+
+# Private expense-category data (now lives in gitignored profiles/local.json)
+scripts/line-codes-raw.json
+
+# Local DB backups (financial data — never tracked)
+data/backups/
+
+# but DO ship the example (placeholders only)
+!.env.example
+
+# Vendored Rust MCP servers — build artifacts + local secrets
+mcp/**/target/
+mcp/**/cookies.txt
+mcp/**/*_dump.json

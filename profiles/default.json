@@ -1,0 +1,1043 @@
+{
+  "name": "default",
+  "blocks": [
+    {
+      "id": "checking",
+      "name": "Checking",
+      "kind": "asset",
+      "order": 0
+    },
+    {
+      "id": "savings",
+      "name": "Savings",
+      "kind": "asset",
+      "order": 1
+    },
+    {
+      "id": "retirement",
+      "name": "Retirement",
+      "kind": "asset",
+      "order": 2,
+      "investment": true
+    },
+    {
+      "id": "brokerage",
+      "name": "Brokerage",
+      "kind": "asset",
+      "order": 3,
+      "investment": true
+    },
+    {
+      "id": "real-estate",
+      "name": "Real Estate",
+      "kind": "asset",
+      "order": 4,
+      "render": "realEstate"
+    },
+    {
+      "id": "mortgage",
+      "name": "Mortgage",
+      "kind": "liability",
+      "order": 0,
+      "render": "mortgage"
+    },
+    {
+      "id": "auto-loan",
+      "name": "Auto Loan",
+      "kind": "liability",
+      "order": 1,
+      "render": "auto"
+    },
+    {
+      "id": "loan",
+      "name": "Loan",
+      "kind": "liability",
+      "order": 2
+    },
+    {
+      "id": "credit",
+      "name": "Credit",
+      "kind": "liability",
+      "order": 3,
+      "render": "credit"
+    }
+  ],
+  "subtypeMap": {
+    "529": "brokerage",
+    "checking": "checking",
+    "savings": "savings",
+    "money market": "savings",
+    "cd": "savings",
+    "hsa": "savings",
+    "401k": "retirement",
+    "401a": "retirement",
+    "ira": "retirement",
+    "roth": "retirement",
+    "brokerage": "brokerage",
+    "credit card": "credit",
+    "mortgage": "mortgage",
+    "auto": "auto-loan",
+    "loan": "auto-loan",
+    "student": "loan"
+  },
+  "lineCodes": [
+    {
+      "code": "1001",
+      "category": "FOOD",
+      "categoryCode": 1000,
+      "label": "Restaurants"
+    },
+    {
+      "code": "1002",
+      "category": "FOOD",
+      "categoryCode": 1000,
+      "label": "Coffee Shops"
+    },
+    {
+      "code": "1003",
+      "category": "FOOD",
+      "categoryCode": 1000,
+      "label": "Groceries"
+    },
+    {
+      "code": "1004",
+      "category": "FOOD",
+      "categoryCode": 1000,
+      "label": "Liquor & Bars"
+    },
+    {
+      "code": "1005",
+      "category": "FOOD",
+      "categoryCode": 1000,
+      "label": "Food Delivery"
+    },
+    {
+      "code": "1006",
+      "category": "FOOD",
+      "categoryCode": 1000,
+      "label": "Per Diem"
+    },
+    {
+      "code": "2001",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Gas / Fuel"
+    },
+    {
+      "code": "2001-1",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "EV Charging"
+    },
+    {
+      "code": "2002",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Airfare & Baggage"
+    },
+    {
+      "code": "2003",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Rental Car"
+    },
+    {
+      "code": "2004",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Taxi / Rideshare"
+    },
+    {
+      "code": "2005",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Parking"
+    },
+    {
+      "code": "2006",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Train / Transit"
+    },
+    {
+      "code": "2007",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Moving Truck"
+    },
+    {
+      "code": "2008",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Hotel"
+    },
+    {
+      "code": "2009",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Oil Change"
+    },
+    {
+      "code": "2010",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Parking Ticket"
+    },
+    {
+      "code": "2011",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Car Wash"
+    },
+    {
+      "code": "2012",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Tolls"
+    },
+    {
+      "code": "2013",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Roadside / Tow"
+    },
+    {
+      "code": "2014",
+      "category": "TRANSPORT",
+      "categoryCode": 2000,
+      "label": "Gratuity"
+    },
+    {
+      "code": "2101",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Meals"
+    },
+    {
+      "code": "2102",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Client Entertainment"
+    },
+    {
+      "code": "2103",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Shipping"
+    },
+    {
+      "code": "2104",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Parking"
+    },
+    {
+      "code": "2105",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Airfare"
+    },
+    {
+      "code": "2106",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Hotel"
+    },
+    {
+      "code": "2107",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Office Supplies"
+    },
+    {
+      "code": "2108",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Mileage / Gas"
+    },
+    {
+      "code": "2109",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Taxi"
+    },
+    {
+      "code": "2110",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Transit"
+    },
+    {
+      "code": "2111",
+      "category": "BUSINESS EXPENSES",
+      "categoryCode": 2100,
+      "label": "Software & Tools"
+    },
+    {
+      "code": "3001",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Insurance"
+    },
+    {
+      "code": "3002",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Mortgage / Rent"
+    },
+    {
+      "code": "3003",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Phone"
+    },
+    {
+      "code": "3004",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Internet / Cable"
+    },
+    {
+      "code": "3005",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Electric"
+    },
+    {
+      "code": "3006",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Gas / Heating"
+    },
+    {
+      "code": "3007",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Water"
+    },
+    {
+      "code": "3008",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Sewer / Trash"
+    },
+    {
+      "code": "3009",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Streaming Services"
+    },
+    {
+      "code": "3010",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Music Subscription"
+    },
+    {
+      "code": "3011",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Software Subscriptions"
+    },
+    {
+      "code": "3012",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Cloud Storage"
+    },
+    {
+      "code": "3013",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Memberships"
+    },
+    {
+      "code": "3014",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Car Payment"
+    },
+    {
+      "code": "3015",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Student Loan"
+    },
+    {
+      "code": "3016",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Storage Unit"
+    },
+    {
+      "code": "3017",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Lawn / Landscaping"
+    },
+    {
+      "code": "3018",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "House Cleaning"
+    },
+    {
+      "code": "3019",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Pest Control"
+    },
+    {
+      "code": "3020",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Home Security"
+    },
+    {
+      "code": "3021",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Pet Insurance"
+    },
+    {
+      "code": "3022",
+      "category": "BILLS",
+      "categoryCode": 3000,
+      "label": "Fitness Subscription"
+    },
+    {
+      "code": "4001",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Clothing"
+    },
+    {
+      "code": "4001-1",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Clothing (Partner)"
+    },
+    {
+      "code": "4001-2",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Clothing (Kids)"
+    },
+    {
+      "code": "4002",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Home Goods"
+    },
+    {
+      "code": "4002-1",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Furniture"
+    },
+    {
+      "code": "4002-2",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Electronics"
+    },
+    {
+      "code": "4002-3",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Plants & Garden"
+    },
+    {
+      "code": "4003",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Gifts"
+    },
+    {
+      "code": "4004",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Personal Items"
+    },
+    {
+      "code": "4005",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Holiday & Seasonal"
+    },
+    {
+      "code": "4006",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Household Supplies"
+    },
+    {
+      "code": "4007",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Outdoor / Camping"
+    },
+    {
+      "code": "4008",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Auto Supplies"
+    },
+    {
+      "code": "4009",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Books / Music / Media"
+    },
+    {
+      "code": "4010",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Office Supplies"
+    },
+    {
+      "code": "4011",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Vintage / Thrift"
+    },
+    {
+      "code": "4012",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Arts & Crafts"
+    },
+    {
+      "code": "4101",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Baby Essentials"
+    },
+    {
+      "code": "4102",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Kids Clothing"
+    },
+    {
+      "code": "4103",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Baby Feeding"
+    },
+    {
+      "code": "4104",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Toys / Books"
+    },
+    {
+      "code": "4105",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Baby Gear"
+    },
+    {
+      "code": "4106",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Nursery"
+    },
+    {
+      "code": "4107",
+      "category": "SHOPPING",
+      "categoryCode": 4000,
+      "label": "Kids Classes"
+    },
+    {
+      "code": "5000",
+      "category": "PET",
+      "categoryCode": 5000,
+      "label": "Adoption / Deposit"
+    },
+    {
+      "code": "5001",
+      "category": "PET",
+      "categoryCode": 5000,
+      "label": "Supplies"
+    },
+    {
+      "code": "5002",
+      "category": "PET",
+      "categoryCode": 5000,
+      "label": "Vet / Boarding"
+    },
+    {
+      "code": "5003",
+      "category": "PET",
+      "categoryCode": 5000,
+      "label": "Pet Medications"
+    },
+    {
+      "code": "5004",
+      "category": "PET",
+      "categoryCode": 5000,
+      "label": "Grooming"
+    },
+    {
+      "code": "6001",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Doctor Visit"
+    },
+    {
+      "code": "6001-1",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Dental"
+    },
+    {
+      "code": "6001-2",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Doctor (Kids)"
+    },
+    {
+      "code": "6002",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Prescriptions"
+    },
+    {
+      "code": "6002-1",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Prescriptions (Kids)"
+    },
+    {
+      "code": "6003",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Haircuts"
+    },
+    {
+      "code": "6003-1",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Haircuts (Partner)"
+    },
+    {
+      "code": "6004",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Eyes / Glasses"
+    },
+    {
+      "code": "6005",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Personal Hygiene"
+    },
+    {
+      "code": "6006",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Massage / Spa"
+    },
+    {
+      "code": "6007",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Gym"
+    },
+    {
+      "code": "6008",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Dry Cleaning"
+    },
+    {
+      "code": "6009",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Nails"
+    },
+    {
+      "code": "6010",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Cosmetics"
+    },
+    {
+      "code": "6011",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Supplements"
+    },
+    {
+      "code": "6012",
+      "category": "HEALTH & HYGIENE",
+      "categoryCode": 6000,
+      "label": "Waxing"
+    },
+    {
+      "code": "7001",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Camera Equipment"
+    },
+    {
+      "code": "7002",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Film & Processing"
+    },
+    {
+      "code": "7003",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Phone / Tablet"
+    },
+    {
+      "code": "7004",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Website / Hosting"
+    },
+    {
+      "code": "7005",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Cloud Storage"
+    },
+    {
+      "code": "7006",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Computer"
+    },
+    {
+      "code": "7007",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Software"
+    },
+    {
+      "code": "7008",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Courses / Tutorials"
+    },
+    {
+      "code": "7101",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Prints"
+    },
+    {
+      "code": "7102",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Marketplace Fees"
+    },
+    {
+      "code": "7103",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Props"
+    },
+    {
+      "code": "7104",
+      "category": "COMPUTER / CAMERA",
+      "categoryCode": 7000,
+      "label": "Equipment Rental"
+    },
+    {
+      "code": "8001",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Movies"
+    },
+    {
+      "code": "8002",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Games"
+    },
+    {
+      "code": "8003",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Concerts / Shows"
+    },
+    {
+      "code": "8004",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Sporting Events"
+    },
+    {
+      "code": "8005",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Museums"
+    },
+    {
+      "code": "8006",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Donations"
+    },
+    {
+      "code": "8007",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Parks / Recreation"
+    },
+    {
+      "code": "8008",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Lottery"
+    },
+    {
+      "code": "8009",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Permits"
+    },
+    {
+      "code": "8010",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Gaming / Console"
+    },
+    {
+      "code": "8011",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Beach / Pool Passes"
+    },
+    {
+      "code": "8012",
+      "category": "ACTIVITIES & FUN",
+      "categoryCode": 8000,
+      "label": "Books"
+    },
+    {
+      "code": "9001",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Taxes"
+    },
+    {
+      "code": "9002",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Vehicle Registration"
+    },
+    {
+      "code": "9003",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Passport / License"
+    },
+    {
+      "code": "9004",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Car Maintenance"
+    },
+    {
+      "code": "9005",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Moving"
+    },
+    {
+      "code": "9006",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Credit Card Annual Fee"
+    },
+    {
+      "code": "9007",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Vehicle Upgrades"
+    },
+    {
+      "code": "9008",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Interest / Late Fees"
+    },
+    {
+      "code": "9009",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Legal / Licenses"
+    },
+    {
+      "code": "9010",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Continued Education"
+    },
+    {
+      "code": "9011",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Cash / ATM"
+    },
+    {
+      "code": "9012",
+      "category": "MISC LIFESTYLE",
+      "categoryCode": 9000,
+      "label": "Uncategorized"
+    },
+    {
+      "code": "9201",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Building Materials"
+    },
+    {
+      "code": "9202",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Contractor Labor"
+    },
+    {
+      "code": "9203",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Flooring / Tile"
+    },
+    {
+      "code": "9204",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Dumpster / Disposal"
+    },
+    {
+      "code": "9205",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Tools"
+    },
+    {
+      "code": "9206",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Appliances"
+    },
+    {
+      "code": "9207",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Paint & Walls"
+    },
+    {
+      "code": "9208",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Kitchen"
+    },
+    {
+      "code": "9209",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "DIY Projects"
+    },
+    {
+      "code": "9210",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Electrical"
+    },
+    {
+      "code": "9211",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Plumbing"
+    },
+    {
+      "code": "9212",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Repairs"
+    },
+    {
+      "code": "9213",
+      "category": "HOUSE & RENOVATIONS",
+      "categoryCode": 9200,
+      "label": "Fixtures"
+    },
+    {
+      "code": "9501",
+      "category": "INCOME (non-spending)",
+      "categoryCode": 9500,
+      "label": "Paycheck",
+      "spending": false
+    },
+    {
+      "code": "9502",
+      "category": "INCOME (non-spending)",
+      "categoryCode": 9500,
+      "label": "Interest & Dividends",
+      "spending": false
+    },
+    {
+      "code": "9503",
+      "category": "INCOME (non-spending)",
+      "categoryCode": 9500,
+      "label": "Refunds & Reimbursements",
+      "spending": false
+    },
+    {
+      "code": "9504",
+      "category": "INCOME (non-spending)",
+      "categoryCode": 9500,
+      "label": "Other Income",
+      "spending": false
+    },
+    {
+      "code": "9901",
+      "category": "TRANSFERS (non-spending)",
+      "categoryCode": 9900,
+      "label": "Transfer",
+      "spending": false
+    },
+    {
+      "code": "9902",
+      "category": "TRANSFERS (non-spending)",
+      "categoryCode": 9900,
+      "label": "Credit Card Payment",
+      "spending": false
+    },
+    {
+      "code": "9903",
+      "category": "TRANSFERS (non-spending)",
+      "categoryCode": 9900,
+      "label": "Retirement Contribution",
+      "spending": false
+    },
+    {
+      "code": "9904",
+      "category": "TRANSFERS (non-spending)",
+      "categoryCode": 9900,
+      "label": "Education / 529 Contribution",
+      "spending": false
+    },
+    {
+      "code": "9905",
+      "category": "TRANSFERS (non-spending)",
+      "categoryCode": 9900,
+      "label": "Investment / Brokerage",
+      "spending": false
+    },
+    {
+      "code": "9906",
+      "category": "TRANSFERS (non-spending)",
+      "categoryCode": 9900,
+      "label": "Crypto",
+      "spending": false
+    }
+  ]
+}
