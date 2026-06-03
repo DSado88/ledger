@@ -57,6 +57,31 @@ reassign an account to a different net-worth block, all inline.
 
 <img src="docs/screenshots/accounts.png" width="760" alt="Accounts tab">
 
+### Decoding the Amazon charge from hell
+
+`AMZN MKTP US*2K4XY` — **$84.34**. What *was* that? Your statement won't tell you,
+Amazon's order list shows a **$356** order, and the math doesn't add up. This is
+the single most annoying part of categorizing real spending, and Ledger ships a
+dedicated MCP server (`mcp/amazon-orders`, plus `mcp/target-orders`) that solves it:
+
+- **Order total ≠ what hit your card.** Gift cards, rewards points, and
+  Subscribe & Save discounts shrink the charge — that $356 order becomes an $84.34
+  charge. `amazon_reconcile_charge` pulls the **actual invoice grand total** and
+  matches on *that*, not the sticker price.
+- **Three separate billing systems.** Physical orders, digital (Kindle/Music/
+  Audible), and Prime membership each bill differently. The reconcile tool searches
+  all three so a mystery charge can't hide in the one you forgot to check.
+- **Charge date ≠ order date.** Subscribe & Save bills when an item *ships*, often
+  1–2 weeks later — so it uses a lookback window instead of exact-date matching.
+- **Then it splits the transaction** into the line items that were actually on the
+  order, so a single Amazon charge lands in Groceries + Household + Kids, not one
+  vague "Shopping" bucket.
+
+Same idea for Target (`target-orders`). Twelve Amazon tools in all — search, invoices,
+returns/refunds, package tracking — run locally over your own session, nothing sent
+to a third party. *(These MCP servers stand on their own and may ship as a separate
+release; for now they're bundled here.)*
+
 ### Built for humans *and* agents
 
 The GUI is for reading and correcting. The *work* — pulling transactions,
