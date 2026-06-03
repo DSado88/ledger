@@ -41,6 +41,16 @@ bun run dev         # Build + start server at http://localhost:7815
 `LEDGER_PROFILE=local` selects `profiles/local.json`; `LEDGER_DB` overrides the
 database path.
 
+## Cold start (fresh clone)
+
+A fresh clone has an empty DB and no linked accounts — the dashboard shows
+empty-state prompts that tell the user to ask Claude. The bootstrap path is the
+**`ledger-setup`** skill: detect the empty state → confirm sandbox vs production
+→ have the user complete the interactive Plaid Link in the Accounts tab (Claude
+can't do that step) → then `ledger-sync` → `ledger-code-transactions` →
+`ledger-reconcile-amazon`. Sandbox is the default; production needs
+`PLAID_ENV=production`.
+
 ## Data flow
 
 Claude pulls data from the Plaid/Amazon/Target MCP servers and writes to SQLite

@@ -523,6 +523,17 @@ function OverviewTab({ institutions, transactions, accountBlocks, period, setPer
     );
   };
 
+  if (institutions.length === 0) {
+    return (
+      <div className="section">
+        <EmptyState
+          title="Welcome to Ledger"
+          body="Nothing's linked yet. Ledger is Claude-native — Claude connects your accounts, pulls transactions, and codes them. Open the Accounts tab to link a bank, or just ask."
+          ask="set up ledger" />
+      </div>
+    );
+  }
+
   return (
     <>
       <NetWorthPanel institutions={institutions} accountBlocks={accountBlocks} hide={hide} onReload={onReload} />
@@ -1087,9 +1098,16 @@ function TxnsTab({ transactions, institutions, openTxnId, setOpenTxnId, onSaveTx
         </div>
 
         {view.length === 0 ? (
-          <div style={{ padding:"40px 20px", textAlign:"center", color:"var(--muted)" }}>
-            No transactions match the current filter.
-          </div>
+          transactions.length === 0 ? (
+            <EmptyState
+              title="No transactions yet"
+              body="Once your accounts are linked, Claude pulls transactions from Plaid and codes them to your chart of accounts."
+              ask="sync my latest transactions" />
+          ) : (
+            <div style={{ padding:"40px 20px", textAlign:"center", color:"var(--muted)" }}>
+              No transactions match the current filter.
+            </div>
+          )
         ) : view.map(tx => {
           const isSplit = tx.splits && tx.splits.length > 0;
           const uncoded = !tx.lineCode && !isSplit;
@@ -1267,6 +1285,13 @@ function BillsTab({ bills, institutions, addBill, removeBill, updateBill, hide }
       </div>
       <div className={`panel ${runningBalances ? "has-cashflow" : ""}`}>
         {adding && <BillAddRow onAdd={handleAdd} onCancel={() => setAdding(false)} autoFocus />}
+        {visible.length === 0 && !adding && (
+          <EmptyState
+            icon="calendar"
+            title="No upcoming cashflow"
+            body="Track recurring inflows and outflows (paydays, mortgage, utilities) to project your running balance. Add one above, or ask Claude."
+            ask="add my recurring bills and paydays" />
+        )}
         {visible.map((b, i) => (
           <React.Fragment key={b.id}>
             {zeroIdx === i && (
@@ -1865,9 +1890,17 @@ function AccountsTab({ institutions, setInstitutions, openAcct, setOpenAcct, onS
           );
         })}
 
+        {institutions.length === 0 && (
+          <EmptyState
+            icon="link"
+            title="No accounts linked yet"
+            body="Link a bank, card, brokerage, or loan through Plaid below — or have Claude walk you through it."
+            ask="set up ledger" />
+        )}
+
         <div className="add-row" onClick={onAddInst}>
           <div className="ico"><Icon name="plus" size={12}/></div>
-          <div><b>Link another institution</b> — bank, card, brokerage, or loan</div>
+          <div><b>{institutions.length === 0 ? "Link your first institution" : "Link another institution"}</b> — bank, card, brokerage, or loan</div>
           <div className="sp"/>
           <Icon name="arrow-right" size={13}/>
         </div>

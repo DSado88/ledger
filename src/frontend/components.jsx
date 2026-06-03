@@ -1168,6 +1168,26 @@ Output ONLY the JSON array. No markdown, no prose, no code fences. Example:
   );
 }
 
+// ─── empty state (cold-start handoff to Claude) ─────────────────────────
+// On a fresh clone there's no data yet. Rather than a dead-end, point the user
+// at the thing that actually populates Ledger: Claude. The `ask` is a literal
+// phrase they can say.
+
+function EmptyState({ icon = "spark", title, body, ask }) {
+  return (
+    <div className="empty-state">
+      <div className="empty-ico"><Icon name={icon} size={20}/></div>
+      <div className="empty-title">{title}</div>
+      {body && <div className="empty-body">{body}</div>}
+      {ask && (
+        <div className="empty-ask">
+          Ask Claude: <span className="empty-cmd">“{ask}”</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── API peek modal ────────────────────────────────────────────────────
 
 function ApiModal({ onClose }) {
@@ -1427,7 +1447,7 @@ Object.assign(window, {
   loadLedgerData, fetchApi, mapTransaction, mapInstitution, mapBill, setLineCodes,
   // components
   Icon, Logo, CodePicker, DateRangePicker, TxnMoreInfo, TxnExpand, AcctExpand,
-  AddModal, BillAddRow, AiBillBar, ApiModal,
+  AddModal, BillAddRow, AiBillBar, ApiModal, EmptyState,
 });
 
 // Mutable catalog vars — must be defineProperty so cross-module reads
