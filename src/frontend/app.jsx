@@ -2333,8 +2333,7 @@ function App() {
         <div className="mark">Ledger · one source of truth for personal finance</div>
         <div className="right">
           <span>Localhost only · 127.0.0.1</span>
-          <span>v0.4.0</span>
-          <span>support@ledger.app</span>
+          <span>v{document.body.dataset.appVersion || "0.0.0"}</span>
         </div>
       </footer>
 

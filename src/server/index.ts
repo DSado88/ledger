@@ -4,8 +4,10 @@ import { redactSensitiveText } from "../plaid/plaid-client";
 import { timingSafeEqual } from "crypto";
 import { join } from "path";
 import { statSync, readFileSync } from "fs";
+import pkg from "../../package.json";
 
 const PORT = Number(process.env.LEDGER_PORT) || 7815;
+const APP_VERSION = (pkg as { version?: string }).version || "0.0.0";
 const FRONTEND_DIR = join(import.meta.dir, "../frontend");
 
 const MIME: Record<string, string> = {
@@ -53,7 +55,7 @@ function serveStatic(path: string): Response | null {
   let body: string | Buffer = readFileSync(resolved);
   const headers: Record<string, string> = { "Content-Type": contentType, ...SECURITY_HEADERS };
   if (ext === ".html") {
-    body = body.toString().replace("<body", `<body data-api-token="${API_TOKEN}"`);
+    body = body.toString().replace("<body", `<body data-api-token="${API_TOKEN}" data-app-version="${APP_VERSION}"`);
     Object.assign(headers, HTML_HEADERS);
   }
   return new Response(body, { headers });
