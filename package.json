@@ -1,13 +1,21 @@
 {
   "name": "ledger",
   "version": "0.1.0",
-  "private": true,
+  "description": "A Claude-native personal finance dashboard — Bun + SQLite + a small REST API, with Claude as the integration layer (Plaid sync, Amazon/Target reconciliation, chart-of-accounts coding).",
+  "license": "MIT",
+  "author": "David Sadofsky",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DSado88/ledger.git"
+  },
+  "homepage": "https://github.com/DSado88/ledger#readme",
   "type": "module",
   "scripts": {
     "build": "bun build src/frontend/entry.jsx --outfile src/frontend/bundle.js --target browser --jsx-runtime=classic",
     "dev": "bun run build && bun run src/server/index.ts",
     "seed": "bun run scripts/seed.ts",
-    "seed:codes": "bun run scripts/seed.ts codes"
+    "seed:codes": "bun run scripts/seed.ts codes",
+    "seed:demo": "bun run scripts/seed-demo.ts"
   },
   "dependencies": {
     "@1password/sdk": "^0.4.0",

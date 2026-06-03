@@ -1,26 +1,87 @@
+<div align="center">
+
 # Ledger
 
-A **Claude-native** personal-finance dashboard. The web app is the source of
-truth (Bun + SQLite + a small REST API); **Claude is the integration layer** —
-it pulls transactions from Plaid, reconciles Amazon/Target charges against real
-order data, codes everything to your chart of accounts, and writes back through
-the API. You drive it with slash commands; the GUI is where you read, verify,
-and adjust.
+**A Claude-native personal finance dashboard.**
+
+The web app is the source of truth (Bun + SQLite + a small REST API).
+Claude is the integration layer — it pulls transactions from Plaid, reconciles
+Amazon/Target charges against real order data, codes everything to your chart of
+accounts, and writes back through the API. You drive it with slash commands; the
+GUI is where you read, verify, and adjust.
+
+![Bun](https://img.shields.io/badge/Bun-1.2+-14151a?logo=bun&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-bun:sqlite-003B57?logo=sqlite&logoColor=white)
+![React](https://img.shields.io/badge/React-CDN-20232a?logo=react)
+![Claude-native](https://img.shields.io/badge/Claude-native-d97757)
+![License: MIT](https://img.shields.io/badge/License-MIT-3F7A4E)
+
+![Overview](docs/screenshots/overview.png)
+
+</div>
 
 ```
-┌──────────────┐   MCP    ┌───────────────┐   REST    ┌───────────────────┐
-│ Plaid / Amazon│ ───────▶ │    Claude     │ ────────▶ │  Ledger app        │
-│ Target (MCP)  │  tools   │ (Claude Code) │   /api    │  Bun + SQLite + UI │
-└──────────────┘          └───────────────┘           └───────────────────┘
+┌───────────────┐   MCP    ┌───────────────┐   REST    ┌────────────────────┐
+│ Plaid / Amazon │ ───────▶ │    Claude     │ ────────▶ │  Ledger app         │
+│ Target  (MCP)  │  tools   │ (Claude Code) │   /api    │  Bun + SQLite + UI  │
+└───────────────┘          └───────────────┘           └────────────────────┘
 ```
 
-- **Frontend** — React (CDN) + a bun-built JSX bundle, served from Bun. Tabs:
-  Overview (net-worth blocks + spending topsheet), Cashflow, Transactions, Accounts.
-- **Backend** — `src/server` (SQLite schema/migrations, REST routes), localhost-only,
-  per-session API token, CSP.
-- **Categorization** — a loadable [profile](#profiles) defines the net-worth
-  blocks and the line-code (expense-category) catalog. A generic default ships;
-  your private catalog lives in a gitignored `profiles/local.json`.
+---
+
+## Highlights
+
+**Net worth that drills down.** Accounts roll up into customizable asset/liability
+blocks. Click a block that holds more than one account to break it out — then
+expand any account for its balance history. Mortgages show amortization (rate ·
+years left), credit cards show utilization, and investment accounts are kept out
+of the spending math automatically.
+
+<img src="docs/screenshots/networth-chart.png" width="520" alt="Block detail with per-account balance chart">
+
+**Cashflow you can read at a glance.** Upcoming inflows and outflows on one
+signed timeline — `+` income (green), `−` bills/outflow (red), transfers and
+paydays tagged. Pick which cash accounts to plan against and it projects a
+running balance, flagging the day you'd go negative.
+
+<img src="docs/screenshots/cashflow.png" width="760" alt="Cashflow tab">
+
+**A spending topsheet that doesn't lie.** Income and transfers are flagged
+`spending: false` in the chart of accounts and excluded from the "net for
+period" deterministically — so a paycheck or a credit-card payment can never
+flatter or wreck your spend totals. Period presets (YTD / month / 30d / 90d) and
+an "active only" toggle.
+
+**Linked accounts, the way you'd organize them.** Drag to reorder, nickname,
+reassign an account to a different net-worth block, all inline.
+
+<img src="docs/screenshots/accounts.png" width="760" alt="Accounts tab">
+
+### Built for humans *and* agents
+
+The GUI is for reading and correcting. The *work* — pulling transactions,
+reconciling an ambiguous Amazon charge against the actual invoice, coding to a
+180-line chart of accounts — is done by Claude through bundled MCP servers and a
+set of skills. Everything an agent does is a plain REST call; every mutation is
+audit-logged; and the API refuses to let the AI overwrite anything you coded by
+hand. Agents read [`CLAUDE.md`](CLAUDE.md) to learn the API (including auth) and
+the cold-start path.
+
+---
+
+## Try it now (sample data)
+
+See the whole app alive in 30 seconds — no Plaid account needed. Seeds a fully
+fictional household (accounts, ~60 coded transactions, cashflow, balance history):
+
+```bash
+bun install
+bun run seed:demo     # fictional demo data
+bun run dev           # http://localhost:7815
+```
+
+Start fresh instead? `bun run seed && bun run dev` gives you an empty dashboard
+that tells you to ask Claude (or link a bank) — see [Cold start](#the-claude-workflow).
 
 ---
 
@@ -29,9 +90,9 @@ and adjust.
 | Dependency | Why | Notes |
 |---|---|---|
 | [Bun](https://bun.sh) ≥ 1.2 | runtime, bundler, test runner, SQLite | `curl -fsSL https://bun.sh/install \| bash` |
-| [Rust](https://rustup.rs) (cargo) | builds the bundled Amazon/Target MCP servers | only needed if you use Amazon/Target reconciliation |
+| [Rust](https://rustup.rs) (cargo) | builds the bundled Amazon/Target MCP servers | only needed for Amazon/Target reconciliation |
 | A [Plaid](https://plaid.com) account | bank/card/brokerage data | free **sandbox** to start; production needs Plaid approval |
-| [Claude Code](https://claude.com/claude-code) | drives the sync/code/reconcile workflow | optional — the app also works with manual entry |
+| [Claude Code](https://claude.com/claude-code) | drives the sync/code/reconcile workflow | optional — the app also works with manual entry + the demo seed |
 | [1Password CLI](https://developer.1password.com/docs/cli/) (`op`) | **optional** secret store for Plaid creds + tokens | only if you don't want secrets in a `.env` |
 
 **MCP servers ship with the repo** — no extra repos to clone. `.mcp.json` wires
@@ -41,12 +102,11 @@ all three for Claude Code automatically:
 
 Amazon/Target read your session cookies from `AMAZON_COOKIES` / `TARGET_COOKIES`
 (paths to a cookies file), else `~/.config/{amazon,target}-orders/cookies.txt`,
-else your local Chrome cookie store. Reconciliation is optional — the app and
-`/ledger-sync`'s Plaid pull work without them.
+else your local Chrome cookie store. Reconciliation is optional.
 
 ---
 
-## Quick start
+## Quick start (your own data)
 
 ```bash
 bun install
@@ -110,8 +170,8 @@ keeps Plaid credentials **and** the per-bank access tokens out of files.
    ```
    Without it, `op` will prompt for interactive auth on each read.
 
-> Sandbox vs production: `PLAID_ENV` controls which secret is used. Start in
-> **sandbox**. Production access is gated by Plaid and billed per developer
+> Sandbox vs production: `PLAID_ENV` controls which secret is used and **defaults
+> to sandbox**. Production access is gated by Plaid and billed per developer
 > account — open-sourcing this code never exposes or bills *your* account, since
 > every credential is read from env/1Password and is gitignored.
 
@@ -119,9 +179,10 @@ keeps Plaid credentials **and** the per-bank access tokens out of files.
 
 ## The Claude workflow
 
-With the MCP servers connected in Claude Code (all three are bundled — see
-above), the project ships slash commands that orchestrate everything:
+With the MCP servers connected in Claude Code (all three are bundled), the
+project ships skills/slash commands that orchestrate everything:
 
+- **`/ledger-setup`** — cold start: bring a fresh, empty clone to a populated dashboard.
 - **`/ledger-sync`** — pull new Plaid transactions, dedupe, insert, refresh balances.
 - **`/ledger-code-transactions`** — assign line codes to uncoded transactions.
 - **`/ledger-reconcile-amazon`** — match Amazon/Target charges to real orders and split them.
@@ -182,12 +243,19 @@ and the CSP allows the React (SRI-pinned) and Plaid CDNs — a compromise of an
 allowlisted CDN could read the token. Run with `PLAID_ENV=sandbox` unless you've
 been approved for production.
 
+---
+
 ## Development
 
 ```bash
 bun test           # full suite (server integration + headless-browser UI tests)
 bun run build      # bundle the frontend
+bun run seed:demo  # fictional sample data for a populated dashboard
 ```
 
 Secrets are never committed (`.env`, `data/`, and `profiles/local.json` are
 gitignored); Plaid secrets are redacted from any error output.
+
+## License
+
+[MIT](LICENSE) © David Sadofsky
