@@ -1067,6 +1067,7 @@ function BillAddRow({ onAdd, onCancel, autoFocus }) {
       </div>
       <div className="b-amt">
         <input ref={amtRef} type="text" placeholder="-0.00" className={amtClass}
+          title="Negative = money out (bills) · Positive = money in (income)"
           value={amount} onChange={(e) => setAmount(e.target.value)} onKeyDown={onAmountKey} />
       </div>
     </div>

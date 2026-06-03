@@ -48,7 +48,7 @@ describe("bill deletion confirmation", () => {
   test("clicking delete asks to confirm; dismissing keeps the bill", async () => {
     const page = await browser!.newPage();
     await page.goto(`${BASE}/`);
-    await page.getByRole("button", { name: /^Bills/ }).click();
+    await page.getByRole("button", { name: /^Cashflow/ }).click();
     const row = page.locator(".bill-row", { hasText: BILL });
     await row.waitFor({ state: "visible", timeout: 5000 });
 

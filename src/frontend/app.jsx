@@ -1,5 +1,5 @@
 // ledger-app.jsx — Ledger main app
-// Tabs: Overview · Bills · Transactions · Accounts
+// Tabs: Overview · Cashflow · Transactions · Accounts
 // Data loaded from local API (Bun + SQLite)
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -1223,14 +1223,18 @@ function BillsTab({ bills, institutions, addBill, removeBill, updateBill, hide }
   return (
     <div className="section">
       <div className="section-head">
-        <h2>Upcoming bills <em>{visible.length}{hiddenCount > 0 ? ` · ${hiddenCount} hidden` : ""}</em></h2>
+        <h2>Upcoming <em>{visible.length}{hiddenCount > 0 ? ` · ${hiddenCount} hidden` : ""}</em>
+          <span className="sign-legend" title="Amounts are signed: positive adds to cash, negative spends it">
+            <span className="pos">+ income</span> · <span className="neg">− bills / outflow</span>
+          </span>
+        </h2>
         <div className="actions">
           <div style={{ position: "relative" }} ref={acctPickerRef}>
             <button className="api-pill" onClick={() => setShowAcctPicker(s => !s)}
               style={cashAccts.length > 0 ? { color:"var(--ink)", borderColor:"var(--ink)", background:"var(--highlight)" } : {}}>
               {cashAccts.length > 0
-                ? `Cashflow · ${fmtMoney(startingBalance)}`
-                : "Cashflow"}
+                ? `Running balance · ${fmtMoney(startingBalance)}`
+                : "Running balance"}
             </button>
             {showAcctPicker && (
               <div className="cashflow-picker">
@@ -1880,7 +1884,8 @@ function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [tab, setTab] = useState(() => {
     const h = location.hash.replace("#", "");
-    return ["overview", "bills", "txns", "accounts"].includes(h) ? h : "overview";
+    const key = h === "bills" ? "cashflow" : h; // legacy #bills bookmarks → Cashflow
+    return ["overview", "cashflow", "txns", "accounts"].includes(key) ? key : "overview";
   });
   const [period, _setPeriod] = useState(() => {
     try { return localStorage.getItem("topsheet-period") || "ytd"; } catch { return "ytd"; }
@@ -2198,7 +2203,7 @@ function App() {
 
   const tabs = [
     { key: "overview",  label: "Overview",     icon: "overview" },
-    { key: "bills",     label: "Bills",        icon: "calendar", count: bills.length },
+    { key: "cashflow",  label: "Cashflow",     icon: "calendar", count: bills.length },
     { key: "txns",      label: "Transactions", icon: "list",     count: transactions.length },
     { key: "accounts",  label: "Accounts",     icon: "link",     count: institutions.length },
   ];
@@ -2255,7 +2260,7 @@ function App() {
           />
         )}
 
-        {tab === "bills" && (
+        {tab === "cashflow" && (
           <BillsTab
             bills={bills}
             institutions={institutions}
