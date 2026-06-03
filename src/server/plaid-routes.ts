@@ -12,6 +12,7 @@ import {
 } from "../plaid/setup-handlers";
 import { getDb } from "./db";
 import { autoCodeTransactions } from "./routes";
+import { getProfile } from "./profile";
 
 const env = resolvePlaidEnv();
 
@@ -312,21 +313,34 @@ function instColor(name: string): string {
   return INST_COLORS[name] || `hsl(${[...name].reduce((h, c) => h + c.charCodeAt(0), 0) % 360}, 45%, 35%)`;
 }
 
-const CATEGORY_MAP: Record<string, string> = {
-  checking: "Checking", savings: "HY Savings", "money market": "HY Savings",
-  cd: "HY Savings", "credit card": "Credit", mortgage: "Mortgage",
-  "student": "Loan", loan: "Auto Loan", auto: "Auto Loan",
-  "401k": "401K", "401a": "401K", ira: "IRA", roth: "IRA",
-  brokerage: "Brokerage", "529": "529", hsa: "HY Savings",
-};
+// Map a Plaid account subtype → a net-worth block NAME, driven by the active
+// profile's subtypeMap (subtype substring → block id) and blocks (id → name).
+// Nothing personal is hardcoded here: a generic clone gets default.json's blocks
+// and a private clone gets local.json's — the auto-mapper follows whichever is
+// loaded. Longest substring wins so "money market" beats a bare "market".
+function subtypeEntries(): Array<[string, string]> {
+  const profile = getProfile();
+  const idToName = new Map(profile.blocks.map((b) => [b.id, b.name]));
+  return Object.entries(profile.subtypeMap)
+    .map(([sub, blockId]) => [sub.toLowerCase(), idToName.get(blockId) || ""] as [string, string])
+    .filter(([, name]) => name)
+    .sort((a, b) => b[0].length - a[0].length);
+}
 
-function mapCategory(subtype: string | null | undefined): string {
-  if (!subtype) return "Checking";
+function defaultBlockName(): string {
+  const blocks = getProfile().blocks;
+  const fallback = blocks.find((b) => b.id === "checking")
+    || blocks.find((b) => ((b.kind as string) || "asset") === "asset");
+  return fallback?.name || "Checking";
+}
+
+export function mapCategory(subtype: string | null | undefined): string {
+  if (!subtype) return defaultBlockName();
   const lower = subtype.toLowerCase();
-  for (const [key, cat] of Object.entries(CATEGORY_MAP)) {
-    if (lower.includes(key)) return cat;
+  for (const [key, name] of subtypeEntries()) {
+    if (lower.includes(key)) return name;
   }
-  return "Checking";
+  return defaultBlockName();
 }
 
 async function provisionInstitution(institutionName: string, client: ReturnType<typeof createPlaidClient>) {

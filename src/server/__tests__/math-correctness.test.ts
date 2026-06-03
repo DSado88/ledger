@@ -490,28 +490,29 @@ describe("PATCH non-existent account", () => {
 
 // ─── Iteration 31: MATH — CATEGORY_MAP "Loan" not in frontend cats ──────
 
-describe("CATEGORY_MAP completeness", () => {
-  test("all CATEGORY_MAP values must appear in frontend ALL_CATS or LIAB_CATS", () => {
-    const plaidSrc = readFileSync(join(import.meta.dir, "../plaid-routes.ts"), "utf-8");
+describe("subtype→block mapping completeness", () => {
+  test("every default-profile subtype mapping targets a category the frontend renders", () => {
+    // The auto-mapper (plaid-routes.mapCategory) assigns each synced account a
+    // net-worth block NAME derived from the active profile's subtypeMap. Those
+    // names must be ones the net-worth panel knows (its seeded fallback lists),
+    // so no synced account silently lands in "Unsorted". Both sides now derive
+    // from the profile — this guards the default profile against drift.
     const appSrc = readFileSync(join(import.meta.dir, "../../frontend/app.jsx"), "utf-8");
+    const profile = JSON.parse(
+      readFileSync(join(import.meta.dir, "../../../profiles/default.json"), "utf-8"),
+    ) as { blocks: Array<{ id: string; name: string }>; subtypeMap: Record<string, string> };
 
-    // Extract CATEGORY_MAP values from plaid-routes
-    const mapBlock = plaidSrc.slice(
-      plaidSrc.indexOf("const CATEGORY_MAP"),
-      plaidSrc.indexOf("};", plaidSrc.indexOf("const CATEGORY_MAP")) + 2,
-    );
-    const catValues = new Set<string>();
-    for (const m of mapBlock.matchAll(/:\s*"([^"]+)"/g)) catValues.add(m[1]);
+    const idToName = new Map(profile.blocks.map((b) => [b.id, b.name]));
 
-    // Extract known frontend categories. Asset blocks are now customizable at
-    // runtime; DEFAULT_ASSET_CATS is the seeded fallback the auto-mapper targets.
     const allCatsMatch = appSrc.match(/DEFAULT_ASSET_CATS\s*=\s*\[([^\]]+)\]/);
     const liabCatsMatch = appSrc.match(/LIAB_CATS\s*=\s*\[([^\]]+)\]/);
     const known = new Set<string>();
     for (const m of (allCatsMatch![1] + "," + liabCatsMatch![1]).matchAll(/"([^"]+)"/g)) known.add(m[1]);
 
-    for (const v of catValues) {
-      expect(known.has(v)).toBe(true);
+    const targets = new Set(Object.values(profile.subtypeMap).map((id) => idToName.get(id)));
+    for (const name of targets) {
+      expect(name).toBeDefined(); // every subtypeMap id resolves to a real block
+      expect(known.has(name as string)).toBe(true);
     }
   });
 });

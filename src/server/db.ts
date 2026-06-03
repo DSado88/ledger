@@ -165,33 +165,23 @@ function migrate(db: Database) {
   // feed — it isn't day-to-day spending.
   try { db.exec("ALTER TABLE account_blocks ADD COLUMN investment INTEGER NOT NULL DEFAULT 0"); } catch {}
 
-  // Blocks treated as investments by default (matched by name).
-  const INVESTMENT_NAMES = new Set(["401K", "IRA", "Roth IRA", "Brokerage", "529", "Retirement", "HSA", "Investments"]);
-
-  // Seed the default asset blocks only when the table is empty, so we never
-  // clobber a user's customizations on a later boot.
-  const assetCount = (db.query("SELECT COUNT(*) AS n FROM account_blocks WHERE kind = 'asset'").get() as { n: number }).n;
-  if (assetCount === 0) {
-    const seed = db.prepare("INSERT OR IGNORE INTO account_blocks (name, kind, sort_order, investment) VALUES (?, 'asset', ?, ?)");
-    ["Checking", "HY Savings", "401K", "IRA", "Brokerage", "529", "Real Estate"]
-      .forEach((name, i) => seed.run(name, i, INVESTMENT_NAMES.has(name) ? 1 : 0));
-  }
-  // Liability blocks seed separately (guarded on their own count) so they still
-  // get planted on databases that already have the asset blocks from an earlier
-  // build. Mortgage/Auto Loan/Credit render as bespoke cells; the rest are generic.
-  const liabCount = (db.query("SELECT COUNT(*) AS n FROM account_blocks WHERE kind = 'liability'").get() as { n: number }).n;
-  if (liabCount === 0) {
-    const seed = db.prepare("INSERT OR IGNORE INTO account_blocks (name, kind, sort_order, investment) VALUES (?, 'liability', ?, 0)");
-    ["Mortgage", "Auto Loan", "Loan", "Credit"].forEach((name, i) => seed.run(name, i));
-  }
-  // One-time backfill: if nothing is flagged yet (e.g. a db from before this
-  // column existed), flag the canonical investment blocks. Runs once — after it,
-  // some block has investment=1, so it won't re-fire and clobber user choices.
-  const anyInvestment = (db.query("SELECT COUNT(*) AS n FROM account_blocks WHERE investment = 1").get() as { n: number }).n;
-  if (anyInvestment === 0) {
-    const upd = db.prepare("UPDATE account_blocks SET investment = 1 WHERE name = ?");
-    INVESTMENT_NAMES.forEach((name) => upd.run(name));
-  }
+  // Seed the net-worth blocks from the active profile — same source of truth as
+  // the line-code catalog, so the personal-vs-generic split lives in one place
+  // (profiles/*.json) and nothing personal is baked into the code. Asset and
+  // liability blocks seed under separate count guards so they still get planted
+  // on a DB that already has one kind from an earlier build, and so we never
+  // clobber a user's customizations once the table is populated.
+  const profileBlocks = getProfile().blocks || [];
+  const seedBlocks = (kind: "asset" | "liability") => {
+    const count = (db.query(`SELECT COUNT(*) AS n FROM account_blocks WHERE kind = ?`).get(kind) as { n: number }).n;
+    if (count > 0) return;
+    const seed = db.prepare("INSERT OR IGNORE INTO account_blocks (name, kind, sort_order, investment) VALUES (?, ?, ?, ?)");
+    profileBlocks
+      .filter((b) => ((b.kind as string) || "asset") === kind)
+      .forEach((b, i) => seed.run(b.name, kind, b.order ?? i, b.investment ? 1 : 0));
+  };
+  seedBlocks("asset");
+  seedBlocks("liability");
 
   // Line codes (expense categories) seed from the active profile when the table
   // is empty — so a fresh install gets a catalog without the separate seed

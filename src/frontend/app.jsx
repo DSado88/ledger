@@ -211,7 +211,7 @@ function AccountDetailModal({ category, accounts, onClose }) {
 // /api/account-blocks); these are only the fallbacks used before they load.
 // Mortgage / Auto Loan / Credit render as bespoke liability cells (amortization,
 // payoff, utilization); any other liability block renders as a generic cell.
-const DEFAULT_ASSET_CATS = ["Checking", "HY Savings", "401K", "IRA", "Brokerage", "529", "Real Estate"];
+const DEFAULT_ASSET_CATS = ["Checking", "Savings", "Retirement", "Brokerage", "Real Estate"];
 const LIAB_CATS = ["Mortgage", "Auto Loan", "Loan", "Credit"];
 
 function NetWorthPanel({ institutions, accountBlocks, hide, onReload }) {
@@ -523,19 +523,19 @@ function OverviewTab({ institutions, transactions, accountBlocks, period, setPer
     );
   };
 
-  if (institutions.length === 0) {
-    return (
-      <div className="section">
-        <EmptyState
-          title="Welcome to Ledger"
-          body="Nothing's linked yet. Ledger is Claude-native — Claude connects your accounts, pulls transactions, and codes them. Open the Accounts tab to link a bank, or just ask."
-          ask="set up ledger" />
-      </div>
-    );
-  }
-
   return (
     <>
+      {institutions.length === 0 && (
+        <div className="coldstart-banner">
+          <Icon name="spark" size={14}/>
+          <span>
+            This is the empty shape — your net-worth blocks and chart of accounts,
+            waiting for data. Link a bank in <b>Accounts</b>, or ask Claude:
+            <span className="cmd">“set up ledger”</span>
+          </span>
+        </div>
+      )}
+
       <NetWorthPanel institutions={institutions} accountBlocks={accountBlocks} hide={hide} onReload={onReload} />
 
       <div className="topsheet-head">
