@@ -281,6 +281,14 @@ bun run seed:demo  # fictional sample data for a populated dashboard
 Secrets are never committed (`.env`, `data/`, and `profiles/local.json` are
 gitignored); Plaid secrets are redacted from any error output.
 
+## Contributing
+
+PRs welcome — `main` is protected, so changes land via pull request. The highest-
+value contribution is a **new order-history MCP server for another retailer**
+(Home Depot, Walmart, Costco, Best Buy, Instacart…) following the
+`mcp/amazon-orders` / `mcp/target-orders` pattern, so charge reconciliation works
+beyond Amazon and Target. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 [MIT](LICENSE) © David Sadofsky
