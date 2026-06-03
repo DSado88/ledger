@@ -76,6 +76,35 @@ and adjust.
 - `DELETE /api/transactions/:id` — Remove transaction
 - `DELETE /api/bills/:id` — Remove bill
 
+### Authenticating (how Claude calls the API)
+
+Every `/api` call needs the per-session token. It's random per server process and
+**only** lives in the served HTML (`<body data-api-token="…">`) — never in a file
+or env var. To call the API from a shell, grab it first:
+
+```bash
+TOKEN=$(curl -s http://localhost:7815/ | grep -o 'data-api-token="[^"]*"' | cut -d'"' -f2)
+curl -s -H "X-Ledger-Token: $TOKEN" "http://localhost:7815/api/transactions?limit=5"
+curl -s -X POST -H "X-Ledger-Token: $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"date":"2026-06-01","vendor":"Coffee","amount":-4,"source":"manual"}' \
+  http://localhost:7815/api/transactions
+```
+
+Notes: re-extract the token after any server restart (it rotates). No `Origin`
+header is needed for shell clients (it's only enforced when present). The host
+must be `localhost`/`127.0.0.1`. In the browser, the same operations are exposed
+ergonomically as `window.Ledger.*` (see the in-app *API* peek modal).
+
+## Skills (orchestration entry points)
+
+Bundled under `.claude/skills/` — start here rather than hand-rolling API calls:
+- **ledger-setup** — cold start: bring a fresh, empty clone to a populated dashboard.
+- **ledger-sync** — pull new Plaid transactions, dedupe, insert, refresh balances.
+- **ledger-code-transactions** — assign line codes to uncoded transactions.
+- **ledger-reconcile-amazon** — match Amazon/Target charges to real orders and split.
+
+There are also slash commands: `/home-value` (comp-based property estimate → net worth).
+
 ## Bundled MCP servers
 
 Declared in `.mcp.json`, wired for Claude Code automatically:
