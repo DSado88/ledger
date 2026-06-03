@@ -1,5 +1,5 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
-import { createPlaidClient, createLinkToken, createUpdateLinkToken, Products, safeErrorMessage, plaidErrorCode, type PlaidEnv } from "../plaid/plaid-client";
+import { createPlaidClient, createLinkToken, createUpdateLinkToken, Products, safeErrorMessage, plaidErrorCode, resolvePlaidEnv } from "../plaid/plaid-client";
 import { defaultTokenStore, getStorageBackend, loadTokens } from "../plaid/token-store";
 import {
   handleCreateLinkToken,
@@ -13,7 +13,7 @@ import {
 import { getDb } from "./db";
 import { autoCodeTransactions } from "./routes";
 
-const env = (process.env.PLAID_ENV ?? "production") as PlaidEnv;
+const env = resolvePlaidEnv();
 
 let plaidClient: ReturnType<typeof createPlaidClient> | null = null;
 

@@ -3,10 +3,10 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { createPlaidClient, type PlaidEnv } from "./plaid-client";
+import { createPlaidClient, resolvePlaidEnv } from "./plaid-client";
 import { getAccessTokens, loadTokens } from "./token-store";
 
-const env = (process.env.PLAID_ENV ?? "production") as PlaidEnv;
+const env = resolvePlaidEnv();
 const client = createPlaidClient(env);
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

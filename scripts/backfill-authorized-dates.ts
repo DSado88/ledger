@@ -1,13 +1,13 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
 import { loadTokens } from "../src/plaid/token-store";
-import { createPlaidClient, type PlaidEnv } from "../src/plaid/plaid-client";
+import { createPlaidClient, resolvePlaidEnv } from "../src/plaid/plaid-client";
 
 const DB_PATH = join(import.meta.dir, "../data/ledger.db");
 const db = new Database(DB_PATH);
 db.run("PRAGMA journal_mode = WAL");
 
-const env = (process.env.PLAID_ENV ?? "production") as PlaidEnv;
+const env = resolvePlaidEnv();
 const client = createPlaidClient(env);
 const tokens = loadTokens();
 

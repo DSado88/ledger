@@ -3,6 +3,16 @@ import { Configuration, PlaidApi, PlaidEnvironments, Products, CountryCode } fro
 
 export type PlaidEnv = "sandbox" | "production";
 
+/**
+ * Resolve the Plaid environment, defaulting to **sandbox**. Production must be
+ * opted into explicitly (PLAID_ENV=production); anything else — unset, blank, or
+ * unrecognized — stays in sandbox so a fresh clone never touches real financial
+ * data or a billed Plaid account by accident.
+ */
+export function resolvePlaidEnv(): PlaidEnv {
+  return process.env.PLAID_ENV === "production" ? "production" : "sandbox";
+}
+
 export interface PlaidRemoveClient {
   itemRemove(request: { access_token: string }): Promise<unknown>;
 }
@@ -52,7 +62,7 @@ function getPlaidCredentials(): { clientId: string; secret: string } {
     return { clientId: process.env.PLAID_CLIENT_ID, secret: process.env.PLAID_SECRET };
   }
 
-  const env = (process.env.PLAID_ENV ?? "production") as PlaidEnv;
+  const env = resolvePlaidEnv();
   const secretField = env === "sandbox" ? "sandbox_secret" : "production_secret";
 
   try {
