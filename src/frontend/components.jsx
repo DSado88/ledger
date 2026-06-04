@@ -1069,7 +1069,7 @@ function BillAddRow({ onAdd, onCancel, autoFocus }) {
   return (
     <div className="bill-add editing" ref={rowRef}>
       <div className="b-date">
-        <input ref={dateRef} placeholder="M/D[/YY]" value={date}
+        <input ref={dateRef} placeholder="M/D/YY" value={date}
           onChange={(e) => setDate(e.target.value)} onKeyDown={onCellKey} />
         <div className="wd">{wd || " "}</div>
       </div>
