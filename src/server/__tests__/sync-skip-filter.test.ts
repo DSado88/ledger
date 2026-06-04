@@ -36,6 +36,18 @@ describe("shouldSkipPlaidTxn", () => {
     expect(skip("Online Banking Transfer to Savings")).toBe(true);
   });
 
+  test("skips credit-card-side settlement & add-ons (double-counted vs checking)", () => {
+    expect(skip("AUTOMATIC PAYMENT - THANK YOU", "AUTOMATIC PAYMENT - THANK YOU", 431)).toBe(true);
+    expect(skip("PAYMENT - THANK YOU")).toBe(true);
+    expect(skip("ACCOUNT ASSURE CREDIT", "ACCOUNT ASSURE CREDIT", 56.62)).toBe(true);
+    expect(skip("ACCOUNT ASSURE 1-800-695-1346", "ACCOUNT ASSURE 1-800-695-1346", -56.62)).toBe(true);
+  });
+
+  test("does NOT over-filter real autopay bills or 'thank you' merchants", () => {
+    expect(skip("AUTOMATIC PAYMENT TO PECO", "PECO", -142.0)).toBe(false);
+    expect(skip("Thank You Cafe", "Thank You Cafe", -8.5)).toBe(false);
+  });
+
   test("incoming Venmo skipped, outgoing kept", () => {
     expect(shouldSkipPlaidTxn("Venmo", "Venmo", 50)).toBe(true);   // reimbursement in
     expect(shouldSkipPlaidTxn("Venmo", "Venmo", -50)).toBe(false); // payment out

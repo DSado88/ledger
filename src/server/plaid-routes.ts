@@ -48,6 +48,10 @@ export function shouldSkipPlaidTxn(name: string, vendor: string, amount: number)
   // "Reinvestment" and they pair to net zero. Exact-match so we don't swallow
   // "interest charge" (a real credit-card cost) or "dividend reinvestment plan".
   if (rawName === "interest" || rawName === "reinvestment") return true;
+  // Credit-card-side settlement & add-ons that double-count against the
+  // checking-side payment: "payment - thank you" (autopay received) and the
+  // Account Assure protection program (recurring charges + matching credits).
+  if (rawName.includes("payment - thank you") || rawName.includes("account assure")) return true;
   // Incoming Venmo is a reimbursement, not spending.
   if ((vendor || "").toLowerCase() === "venmo" && amount > 0) return true;
   return false;
