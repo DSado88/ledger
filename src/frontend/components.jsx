@@ -87,7 +87,18 @@ const normalizeDate = (s) => {
   if (!s) return s;
   const parts = String(s).split("/").map(p => p.trim());
   if (parts.length < 2) return s;
-  return `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
+  const m = parseInt(parts[0], 10);
+  const d = parseInt(parts[1], 10);
+  if (isNaN(m) || isNaN(d)) return s;
+  // Preserve an optional year so cashflow can span years (e.g. 2027 items).
+  if (parts[2] && parts[2] !== "") {
+    let y = parseInt(parts[2], 10);
+    if (!isNaN(y)) {
+      if (y < 100) y += 2000;
+      return `${m}/${d}/${y}`;
+    }
+  }
+  return `${m}/${d}`;
 };
 
 // ─── period helpers ────────────────────────────────────────────────────
@@ -1058,7 +1069,7 @@ function BillAddRow({ onAdd, onCancel, autoFocus }) {
   return (
     <div className="bill-add editing" ref={rowRef}>
       <div className="b-date">
-        <input ref={dateRef} placeholder="M/D" value={date}
+        <input ref={dateRef} placeholder="M/D[/YY]" value={date}
           onChange={(e) => setDate(e.target.value)} onKeyDown={onCellKey} />
         <div className="wd">{wd || " "}</div>
       </div>

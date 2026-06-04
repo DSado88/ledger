@@ -1215,8 +1215,14 @@ function BillsTab({ bills, institutions, addBill, removeBill, updateBill, hide }
     return () => document.removeEventListener("mousedown", onDown);
   }, [showAcctPicker]);
 
-  const hiddenCount = bills.filter(b => b.hidden).length;
-  const visible = showHidden ? bills : bills.filter(b => !b.hidden);
+  // Sort chronologically by effective date (yearless = current year) so
+  // year-qualified entries (e.g. 2027) project into the right place.
+  const sorted = useMemo(
+    () => [...bills].sort((a, b) => billOrder(a.date) - billOrder(b.date)),
+    [bills],
+  );
+  const hiddenCount = sorted.filter(b => b.hidden).length;
+  const visible = showHidden ? sorted : sorted.filter(b => !b.hidden);
 
   const runningBalances = useMemo(() => {
     if (cashAccts.length === 0) return null;
@@ -1301,8 +1307,8 @@ function BillsTab({ bills, institutions, addBill, removeBill, updateBill, hide }
             )}
             <div className={`bill-row ${b.kind || ""} ${b.hidden ? "is-hidden" : ""} ${runningBalances && runningBalances[i] < 0 ? "past-zero" : ""} ${!b.hidden && isBillPastDue(b.date) ? "past-due" : ""}`}>
               <div className="b-date">
-                <b>{b.date}</b>
-                <span>{b.weekday || computeWeekday(b.date)}</span>
+                <b>{fmtBillDate(b.date)}</b>
+                <span>{computeWeekday(b.date)}</span>
               </div>
               <div className="b-name">
                 {b.name}

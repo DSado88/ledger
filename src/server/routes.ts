@@ -9,6 +9,22 @@ const json = (data: unknown, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 
+/**
+ * Chronological sort key for a bill date ("M/D" or "M/D/YYYY"). Yearless dates
+ * are treated as the current year, so year-qualified bills (e.g. 2027) sort
+ * after the current cycle. Unparseable dates sort to the end.
+ */
+export function billSortKey(date: string): number {
+  const p = String(date ?? "").split("/").map((s) => s.trim());
+  const m = parseInt(p[0], 10);
+  const d = parseInt(p[1], 10);
+  if (isNaN(m) || isNaN(d)) return Number.POSITIVE_INFINITY;
+  let y = p[2] ? parseInt(p[2], 10) : new Date().getFullYear();
+  if (isNaN(y)) y = new Date().getFullYear();
+  if (y < 100) y += 2000;
+  return Date.UTC(y, m - 1, d);
+}
+
 export function normalizeVendor(vendor: string): string {
   return vendor
     .toLowerCase()
@@ -183,9 +199,8 @@ export const routes: Record<string, Record<string, RouteHandler>> = {
     },
 
     "/api/bills": () => {
-      const rows = getDb().query(
-        "SELECT * FROM bills ORDER BY CAST(SUBSTR(date, 1, INSTR(date, '/') - 1) AS INTEGER), CAST(SUBSTR(date, INSTR(date, '/') + 1) AS INTEGER), date"
-      ).all();
+      const rows = getDb().query("SELECT * FROM bills").all() as Array<{ date: string }>;
+      rows.sort((a, b) => billSortKey(a.date) - billSortKey(b.date));
       return json(rows);
     },
 
