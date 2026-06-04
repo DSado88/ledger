@@ -28,6 +28,31 @@ function getPlaidClient() {
 const PRODUCTS: Products[] = [Products.Transactions];
 const OPTIONAL_PRODUCTS: Products[] = [Products.Investments, Products.Liabilities];
 
+/**
+ * OPINIONATED sync skip filter — decides which Plaid transactions never enter
+ * the feed. CC autopays double-count (the real spend is on the card side);
+ * dividends/interest/reinvestment from savings & cash-management accounts are
+ * trivial balance noise (net worth already reflects them via balances);
+ * payroll and internal transfers aren't spending. Loan/mortgage payments are
+ * intentionally KEPT — they're the real debit and aren't tracked loan-side.
+ */
+export function shouldSkipPlaidTxn(name: string, vendor: string, amount: number): boolean {
+  const rawName = (name || "").toLowerCase().trim();
+  if (
+    rawName.includes("chase credit crd") ||
+    rawName.includes("dividend") ||
+    rawName.includes("payroll") ||
+    rawName.includes("online banking transfer")
+  ) return true;
+  // Investment cash-management sweeps: Plaid names these exactly "Interest" /
+  // "Reinvestment" and they pair to net zero. Exact-match so we don't swallow
+  // "interest charge" (a real credit-card cost) or "dividend reinvestment plan".
+  if (rawName === "interest" || rawName === "reinvestment") return true;
+  // Incoming Venmo is a reimbursement, not spending.
+  if ((vendor || "").toLowerCase() === "venmo" && amount > 0) return true;
+  return false;
+}
+
 let csrfToken: string | null = null;
 
 function getCsrfToken(): string {
@@ -513,21 +538,10 @@ async function syncFromPlaid(
         const plaidTxId = t.transaction_id as string;
         const pendingId = t.pending_transaction_id as string | null;
         const txDate = (t.authorized_date as string) || (t.date as string);
-        // OPINIONATED: Skip CC autopays and dividends from checking/savings.
-        // CC autopays double-count because the actual spending already exists on
-        // the credit card side. Dividends are trivial balance adjustments.
-        // Loan/mortgage payments are KEPT — they're the real debit and aren't
-        // tracked on the loan side.
+        // See shouldSkipPlaidTxn — CC autopays, dividends/interest/reinvestment,
+        // payroll, internal transfers, and incoming Venmo never enter the feed.
         // TODO(open-source): make this configurable per-institution or per-account.
-        const rawName = (t.name as string || "").toLowerCase();
-        if (
-          rawName.includes("chase credit crd") ||
-          rawName.includes("dividend") ||
-          rawName.includes("payroll") ||
-          rawName.includes("online banking transfer")
-        ) continue;
-        // Skip incoming Venmo (reimbursements, not spending)
-        if (vendor.toLowerCase() === "venmo" && amount > 0) continue;
+        if (shouldSkipPlaidTxn(t.name as string, vendor, amount)) continue;
 
         const pfc = t.personal_finance_category as Record<string, unknown> | null;
         const meta = JSON.stringify({
