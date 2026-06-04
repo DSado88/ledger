@@ -414,6 +414,11 @@
   .bill-row .b-running.neg{ color:var(--danger) }
   .bill-row .b-running.private{ filter:blur(5px); user-select:none }
   .bill-row.past-zero{ opacity:.45 }
+  /* Date already passed — likely paid; clear/hide it so the running balance
+     doesn't double-count. Amber accent = needs attention. */
+  .bill-row.past-due{ box-shadow:inset 3px 0 0 var(--warning); background:color-mix(in oklab, var(--warning-bg) 45%, transparent) }
+  .bill-row.past-due:hover{ background:color-mix(in oklab, var(--warning-bg) 70%, transparent) }
+  .bill-row.past-due .b-date b{ color:var(--warning) }
 
   .cashflow-zero{
     display:flex; align-items:center; gap:10px; padding:0 18px;

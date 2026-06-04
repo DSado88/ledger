@@ -3,6 +3,7 @@
 // Exposes everything to window so the main app file can use it.
 import "./networth.js"; // registers globalThis.partitionNetWorth for the bundle
 import "./spending.js"; // registers globalThis.splitBySpending / isNonSpendingCategory
+import "./bills.js"; // registers globalThis.isBillPastDue / parseBillDate
 
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 

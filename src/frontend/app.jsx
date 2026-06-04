@@ -1299,7 +1299,7 @@ function BillsTab({ bills, institutions, addBill, removeBill, updateBill, hide }
                 <span>Out of cash</span>
               </div>
             )}
-            <div className={`bill-row ${b.kind || ""} ${b.hidden ? "is-hidden" : ""} ${runningBalances && runningBalances[i] < 0 ? "past-zero" : ""}`}>
+            <div className={`bill-row ${b.kind || ""} ${b.hidden ? "is-hidden" : ""} ${runningBalances && runningBalances[i] < 0 ? "past-zero" : ""} ${!b.hidden && isBillPastDue(b.date) ? "past-due" : ""}`}>
               <div className="b-date">
                 <b>{b.date}</b>
                 <span>{b.weekday || computeWeekday(b.date)}</span>
