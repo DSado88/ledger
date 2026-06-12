@@ -1794,6 +1794,44 @@ function AccountsTab({ institutions, setInstitutions, openAcct, setOpenAcct, onS
     });
   };
 
+  const togglePause = async (inst) => {
+    try {
+      await fetchApi(`/api/institutions/${encodeURIComponent(inst.id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ paused: !inst.paused }),
+      });
+      setInstitutions(prev => prev.map(i => i.id === inst.id ? { ...i, paused: !inst.paused } : i));
+    } catch (e) { console.error("Failed to toggle pause:", e); }
+  };
+
+  const removeFeed = async (inst) => {
+    const nTx = inst.accounts.length;
+    if (!confirm(`Remove ${inst.name}? This unlinks it from Plaid and permanently deletes its ${nTx === 1 ? "account" : `${nTx} accounts`} and all of their transactions and balance history. This can't be undone.`)) return;
+    try {
+      if (inst.plaidItemId) {
+        // Revoke Plaid access first so a future sync can't resurrect the feed.
+        // The link-token call exists only to set the CSRF cookie disconnect needs.
+        await fetchApi("/api/plaid/link-token");
+        const csrf = (document.cookie.match(/__ledger_csrf=([a-f0-9]+)/) || [])[1] || "";
+        try {
+          await fetchApi("/api/plaid/disconnect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
+            body: JSON.stringify({ item_id: inst.plaidItemId }),
+          });
+        } catch (e) {
+          // 404 = no stored token (already revoked) — safe to keep purging.
+          if (!String(e).includes("404")) throw e;
+        }
+      }
+      await fetchApi(`/api/institutions/${encodeURIComponent(inst.id)}`, { method: "DELETE" });
+      setInstitutions(prev => prev.filter(i => i.id !== inst.id));
+    } catch (e) {
+      console.error("Failed to remove feed:", e);
+      alert(`Couldn't remove ${inst.name}: ${e.message || e}`);
+    }
+  };
+
   const instDrop = (idx, edge) => dropTarget?.type === "inst" && dropTarget.idx === idx && dropTarget.edge === edge;
   const acctDrop = (instId, idx, edge) => dropTarget?.type === "acct" && dropTarget.instId === instId && dropTarget.idx === idx && dropTarget.edge === edge;
 
@@ -1826,8 +1864,8 @@ function AccountsTab({ institutions, setInstitutions, openAcct, setOpenAcct, onS
                 <div>
                   <div className="inst-name">{inst.name}</div>
                   <div className="inst-meta">
-                    <span className={`dot ${inst.status === "ok" ? "ok" : "reauth"}`}/>
-                    <span>{inst.status === "ok" ? "Healthy" : "Needs reauth"}</span>
+                    <span className={`dot ${inst.paused ? "paused" : inst.status === "ok" ? "ok" : "reauth"}`}/>
+                    <span>{inst.paused ? "Paused" : inst.status === "ok" ? "Healthy" : "Needs reauth"}</span>
                     <span className="sep">·</span>
                     <span>Synced {relTime(inst.lastSyncMin)}</span>
                     <span className="sep">·</span>
@@ -1890,6 +1928,16 @@ function AccountsTab({ institutions, setInstitutions, openAcct, setOpenAcct, onS
                       </React.Fragment>
                     );
                   })}
+                  <div className="feed-actions">
+                    <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); togglePause(inst); }}>
+                      <Icon name={inst.paused ? "play" : "pause"} size={11} style={{ verticalAlign:"-1px", marginRight:4 }}/>
+                      {inst.paused ? "Resume feed" : "Pause feed"}
+                    </button>
+                    <button className="btn btn-sm feed-remove" onClick={(e) => { e.stopPropagation(); removeFeed(inst); }}>
+                      <Icon name="trash" size={11} style={{ verticalAlign:"-1px", marginRight:4 }}/>
+                      Remove feed…
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

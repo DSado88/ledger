@@ -208,6 +208,7 @@
   .inst-meta .dot{ width:6px; height:6px; border-radius:50%; flex-shrink:0 }
   .inst-meta .dot.ok{ background:var(--positive) }
   .inst-meta .dot.reauth{ background:var(--warning) }
+  .inst-meta .dot.paused{ background:var(--muted-2) }
   .inst-meta .sep{ color:var(--muted-2) }
   .inst-bal{
     text-align:right; font-family:var(--mono); font-feature-settings:"tnum";
@@ -216,6 +217,9 @@
   .inst-bal.private{ filter:blur(6px); user-select:none }
 
   .acct-list{ border-top:1px solid var(--line); background:var(--surface-2) }
+  .feed-actions{ display:flex; gap:8px; justify-content:flex-end; padding:8px 18px; border-top:1px solid color-mix(in oklab, var(--line) 50%, transparent) }
+  .feed-remove{ color:var(--danger) }
+  .feed-remove:hover{ background:color-mix(in oklab, var(--danger) 10%, transparent) }
   .acct-line{
     display:grid; grid-template-columns:12px 42px 1fr auto;
     gap:14px; align-items:center;

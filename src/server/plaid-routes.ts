@@ -110,6 +110,12 @@ export function classifyItemSyncError(
   };
 }
 
+// A paused feed is skipped entirely during sync. An item with no DB
+// institution yet (mid-setup) is never considered paused.
+export function shouldSkipPausedInstitution(dbInst: { paused?: number } | undefined): boolean {
+  return !!dbInst && dbInst.paused === 1;
+}
+
 export async function handlePlaidRoute(req: Request, path: string): Promise<Response | null> {
   if (!path.startsWith("/api/plaid")) return null;
 
@@ -450,18 +456,25 @@ async function syncFromPlaid(
   const dbAccounts = db.query("SELECT id, mask, institution_id, name, nickname FROM accounts").all() as Array<{
     id: string; mask: string; institution_id: string; name: string; nickname: string | null;
   }>;
-  const dbInstitutions = db.query("SELECT id, plaid_item_id FROM institutions").all() as Array<{
-    id: string; plaid_item_id: string | null;
+  const dbInstitutions = db.query("SELECT id, plaid_item_id, paused FROM institutions").all() as Array<{
+    id: string; plaid_item_id: string | null; paused: number;
   }>;
 
   let totalSynced = 0;
   let totalAcctsUpdated = 0;
-  const itemResults: Array<{ institution: string; transactions: number; accounts: number }> = [];
+  const itemResults: Array<{ institution: string; transactions: number; accounts: number; paused?: boolean; error?: string }> = [];
 
   for (const item of tokens.items) {
    try {
     // Find DB institution for this Plaid item
     const dbInst = dbInstitutions.find((i) => i.plaid_item_id === item.itemId);
+
+    // Paused feeds keep their token but are never queried — no new
+    // transactions, no balance updates — until the user resumes them.
+    if (shouldSkipPausedInstitution(dbInst)) {
+      itemResults.push({ institution: item.institutionName, transactions: 0, accounts: 0, paused: true });
+      continue;
+    }
 
     // Get Plaid accounts → build plaidAcctId→info map + update balances
     const acctResp = await client.accountsGet({ access_token: item.accessToken });

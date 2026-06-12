@@ -232,6 +232,7 @@ function mapInstitution(inst) {
     monogram: inst.monogram || inst.name.charAt(0).toUpperCase(),
     color: inst.color || "#1A1814",
     status: inst.status || "ok",
+    paused: !!inst.paused,
     plaidItemId: inst.plaid_item_id || null,
     connectedAt: inst.connected_at,
     lastSyncMin: 0,
@@ -325,6 +326,9 @@ function Icon({ name, size = 14, ...rest }) {
   if (name === "list")       return <svg {...c}><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>;
   if (name === "link")       return <svg {...c}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>;
   if (name === "columns")    return <svg {...c}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>;
+  if (name === "pause")      return <svg {...c}><path d="M10 5v14M14 5v14"/></svg>;
+  if (name === "play")       return <svg {...c}><path d="m7 4 13 8-13 8Z"/></svg>;
+  if (name === "trash")      return <svg {...c}><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
   if (name === "grip-vertical") return <svg {...c}><circle cx="9" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="19" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="19" r="1" fill="currentColor" stroke="none"/></svg>;
   return null;
 }

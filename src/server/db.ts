@@ -214,4 +214,5 @@ function migrate(db: Database) {
   try { db.exec("ALTER TABLE accounts ADD COLUMN loan_term_months INTEGER"); } catch {}
   try { db.exec("ALTER TABLE institutions ADD COLUMN display_order INTEGER NOT NULL DEFAULT 0"); } catch {}
   try { db.exec("ALTER TABLE accounts ADD COLUMN display_order INTEGER NOT NULL DEFAULT 0"); } catch {}
+  try { db.exec("ALTER TABLE institutions ADD COLUMN paused INTEGER NOT NULL DEFAULT 0"); } catch {}
 }

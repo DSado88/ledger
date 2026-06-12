@@ -663,6 +663,23 @@ export const routes: Record<string, Record<string, RouteHandler>> = {
       return json({ ok: true });
     },
 
+    "/api/institutions/:id": async (req, params) => {
+      const body = await req.json();
+      const db = getDb();
+      if (typeof body.paused !== "boolean" && body.paused !== 0 && body.paused !== 1) {
+        return json({ error: "paused must be a boolean" }, 400);
+      }
+      const prev = db.query("SELECT * FROM institutions WHERE id = ?").get(params.id);
+      if (!prev) return json({ error: "Institution not found" }, 404);
+      const paused = body.paused ? 1 : 0;
+      db.prepare("UPDATE institutions SET paused = ? WHERE id = ?").run(paused, params.id);
+      logAudit({
+        method: "PATCH", path: `/api/institutions/${params.id}`, entityType: "institution",
+        entityId: params.id, actor: "manual", action: "update", changes: { paused }, prevState: prev,
+      });
+      return json({ ok: true, paused });
+    },
+
     "/api/line-codes/:code": async (req, params) => {
       const code = decodeURIComponent(params.code);
       const ALLOWED = new Set(["category", "label", "category_code", "spending"]);
@@ -832,6 +849,34 @@ export const routes: Record<string, Record<string, RouteHandler>> = {
         changes: { reassigned }, prevState: prev,
       });
       return json({ ok: true, reassigned });
+    },
+
+    // Purge a feed: the institution, its accounts, and every transaction,
+    // split, and balance-history row under them. Does NOT touch Plaid — the
+    // caller revokes via POST /api/plaid/disconnect first, otherwise the
+    // access token lingers in the store and the next sync recreates the data.
+    "/api/institutions/:id": (_req, params) => {
+      const db = getDb();
+      const prev = db.query("SELECT * FROM institutions WHERE id = ?").get(params.id);
+      if (!prev) return json({ error: "Institution not found" }, 404);
+      const accountIds = (db.query("SELECT id FROM accounts WHERE institution_id = ?").all(params.id) as Array<{ id: string }>).map((a) => a.id);
+      let transactions = 0, balances = 0;
+      const run = db.transaction(() => {
+        for (const acctId of accountIds) {
+          db.prepare("DELETE FROM splits WHERE transaction_id IN (SELECT id FROM transactions WHERE account_id = ?)").run(acctId);
+          transactions += db.prepare("DELETE FROM transactions WHERE account_id = ?").run(acctId).changes;
+          balances += db.prepare("DELETE FROM balance_history WHERE account_id = ?").run(acctId).changes;
+        }
+        db.prepare("DELETE FROM accounts WHERE institution_id = ?").run(params.id);
+        db.prepare("DELETE FROM institutions WHERE id = ?").run(params.id);
+      });
+      run();
+      logAudit({
+        method: "DELETE", path: `/api/institutions/${params.id}`, entityType: "institution",
+        entityId: params.id, actor: "manual", action: "delete",
+        changes: { accounts: accountIds.length, transactions, balances }, prevState: prev,
+      });
+      return json({ ok: true, accounts: accountIds.length, transactions, balances });
     },
 
     "/api/bills/:id": (_req, params) => {
