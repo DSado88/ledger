@@ -2,7 +2,7 @@ use anyhow::{Context, Result, bail};
 use chrono::Datelike;
 use regex::Regex;
 use reqwest::header::{self, HeaderMap, HeaderValue};
-use std::sync::{LazyLock, RwLock};
+use std::sync::{Arc, LazyLock, RwLock};
 use std::time::{Duration, Instant};
 
 use crate::models::*;
@@ -14,6 +14,10 @@ const MAX_PAGES: usize = 50;
 /// Page to open for interactive login and to probe session validity. Redirects to
 /// the sign-in flow when the session is dead, otherwise renders order history.
 pub const ORDER_HISTORY_URL: &str = "https://www.amazon.com/gp/css/order-history";
+
+/// Hydration marker for order-list pages: the order-ID span only exists after
+/// the Siege WASM decrypt renders the cards.
+const ORDER_CARD_MARKER: &str = ".js-order-card .yohtmlc-order-id";
 
 /// Upper bound on the login poll so a caller can't pin a request open indefinitely.
 const MAX_LOGIN_TIMEOUT_SECS: u64 = 600;
@@ -84,6 +88,10 @@ pub fn load_cookies_from_browser() -> Result<String> {
 pub struct AmazonClient {
     /// Swappable so `amazon_login` can refresh cookies without restarting the server.
     http: RwLock<reqwest::Client>,
+    /// The current raw Cookie header — the headless-Chrome fetcher needs it as a
+    /// string (it injects cookies via CDP, not through reqwest).
+    cookies_header: RwLock<String>,
+    hydrated: Arc<crate::browser::HydratedFetcher>,
     cookies_path: String,
 }
 
@@ -93,6 +101,8 @@ impl AmazonClient {
         let http = Self::build_http(&cookies_header)?;
         Ok(Self {
             http: RwLock::new(http),
+            cookies_header: RwLock::new(cookies_header),
+            hydrated: Arc::new(crate::browser::HydratedFetcher::new()),
             cookies_path: cookies_path.to_string(),
         })
     }
@@ -103,6 +113,8 @@ impl AmazonClient {
         let http = Self::build_http("")?;
         Ok(Self {
             http: RwLock::new(http),
+            cookies_header: RwLock::new(String::new()),
+            hydrated: Arc::new(crate::browser::HydratedFetcher::new()),
             cookies_path: cookies_path.to_string(),
         })
     }
@@ -142,6 +154,7 @@ impl AmazonClient {
         // Recover from a poisoned lock rather than panicking the request: the guarded
         // reqwest::Client has no invariant a panicking thread could have corrupted.
         *self.http.write().unwrap_or_else(|e| e.into_inner()) = client;
+        *self.cookies_header.write().unwrap_or_else(|e| e.into_inner()) = cookies_header.to_string();
         Ok(())
     }
 
@@ -189,6 +202,27 @@ impl AmazonClient {
             return Err(AuthExpired.into());
         }
         Ok(body)
+    }
+
+    /// Fetch a Siege-encrypted list page through headless Chrome and return the
+    /// hydrated DOM. `wait_css` is the hydration marker to wait for. Detail
+    /// pages don't need this — use `get` for those.
+    async fn get_hydrated(&self, url: &str, wait_css: &str) -> Result<String> {
+        eprintln!("  GET (browser) {}", url);
+        let cookies = self
+            .cookies_header
+            .read()
+            .unwrap_or_else(|e| e.into_inner())
+            .clone();
+        if cookies.is_empty() {
+            return Err(AuthExpired.into());
+        }
+        let fetcher = Arc::clone(&self.hydrated);
+        let url = url.to_string();
+        let wait_css = wait_css.to_string();
+        tokio::task::spawn_blocking(move || fetcher.fetch(&url, &cookies, &wait_css))
+            .await
+            .context("browser fetch task panicked")?
     }
 
     /// True when the current cookies yield an authenticated session.
@@ -264,7 +298,7 @@ impl AmazonClient {
                 "{}/your-orders/orders?timeFilter={}&startIndex={}",
                 BASE, filter, start_index
             );
-            let html = self.get(&url).await
+            let html = self.get_hydrated(&url, ORDER_CARD_MARKER).await
                 .with_context(|| format!("page {} (startIndex={})", page + 1, start_index))?;
 
             let mut orders = parse::parse_order_list(&html)?;
@@ -296,7 +330,7 @@ impl AmazonClient {
                 "{}/your-orders/orders?orderFilter=digital&timeFilter={}&startIndex={}",
                 BASE, filter, start_index
             );
-            let html = self.get(&url).await
+            let html = self.get_hydrated(&url, ORDER_CARD_MARKER).await
                 .with_context(|| format!("digital page {} (startIndex={})", page + 1, start_index))?;
 
             let mut orders = parse::parse_order_list(&html)?;
@@ -319,7 +353,7 @@ impl AmazonClient {
 
     pub async fn prime_payments(&self) -> Result<Vec<PrimePayment>> {
         let url = format!("{}/mc/payments", BASE);
-        let html = self.get(&url).await?;
+        let html = self.get_hydrated(&url, ".pmts-portal-component").await?;
         parse::parse_prime_payments(&html)
     }
 
@@ -384,7 +418,7 @@ impl AmazonClient {
 
     pub async fn list_returns(&self) -> Result<Vec<ReturnSummary>> {
         let url = format!("{}/your-returns", BASE);
-        let html = self.get(&url).await?;
+        let html = self.get_hydrated(&url, ".item-return-history-card").await?;
         parse::parse_returns(&html)
     }
 
@@ -394,7 +428,7 @@ impl AmazonClient {
             "{}/cpe/yourpayments/transactions?transactionTag={}",
             BASE, order_id
         );
-        let html = self.get(&url).await?;
+        let html = self.get_hydrated(&url, "a[href*=\"transaction\"]").await?;
         parse::parse_transactions(&html, order_id)
     }
 
@@ -592,7 +626,7 @@ impl AmazonClient {
 }
 
 /// Heuristic: Amazon serves the sign-in form (not order content) when the session is dead.
-fn is_signin_page(body: &str) -> bool {
+pub(crate) fn is_signin_page(body: &str) -> bool {
     body.contains("Sign in") && body.contains("ap_email") && !body.contains("order-header")
 }
 

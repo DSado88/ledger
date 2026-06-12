@@ -41,3 +41,4 @@ data/backups/
 mcp/**/target/
 mcp/**/cookies.txt
 mcp/**/*_dump.json
+.playwright-mcp/

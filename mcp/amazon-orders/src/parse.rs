@@ -1131,3 +1131,43 @@ mod tests {
         assert!(parse_date_to_ymd("garbage").is_none());
     }
 }
+
+#[cfg(test)]
+mod hydrated_tests {
+    use super::*;
+
+    // Fixtures captured 2026-06-12 from the hydrated (post-Siege-decrypt) DOM of
+    // the real order-history page. Raw HTTP responses no longer contain order
+    // data -- these are what the parser sees when fed browser-rendered HTML.
+    const ORDERS: &str = include_str!("../tests/fixtures/orders_hydrated.html");
+    const DIGITAL: &str = include_str!("../tests/fixtures/digital_hydrated.html");
+
+    #[test]
+    fn test_parse_hydrated_order_list() {
+        let orders = parse_order_list(ORDERS).unwrap();
+        assert_eq!(orders.len(), 10, "expected all 10 hydrated order cards to parse");
+
+        let first = &orders[0];
+        assert_eq!(first.order_id, "113-8791535-6766607");
+        assert_eq!(first.date.as_deref(), Some("June 12, 2026"));
+        assert_eq!(first.total.as_deref(), Some("$58.29"));
+        assert!(
+            first.products.iter().any(|p| p.title.as_deref().is_some_and(|t| t.contains("Anker"))),
+            "first order should list the Anker power bank, got: {:?}",
+            first.products
+        );
+
+        // Multi-item order parses all products
+        let beauty = orders.iter().find(|o| o.order_id == "111-1632649-8353058").unwrap();
+        assert!(beauty.products.len() >= 5, "13-item order should surface several products, got {}", beauty.products.len());
+    }
+
+    #[test]
+    fn test_parse_hydrated_digital_order_list() {
+        let orders = parse_order_list(DIGITAL).unwrap();
+        assert_eq!(orders.len(), 3, "expected all 3 hydrated digital cards to parse");
+        assert!(orders.iter().all(|o| o.order_id.starts_with("D01-")));
+        let totals: Vec<_> = orders.iter().filter_map(|o| o.total.clone()).collect();
+        assert!(totals.contains(&"$12.71".to_string()), "totals: {:?}", totals);
+    }
+}

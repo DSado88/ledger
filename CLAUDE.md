@@ -73,8 +73,10 @@ and adjust.
 - `POST|PATCH|DELETE /api/line-codes`, `/api/account-blocks` — CRUD for the catalog
 - `PATCH /api/transactions/:id` — Update (line_code, description, etc.)
 - `PATCH /api/accounts/:id` — Update account (nickname, net-worth block)
+- `PATCH /api/institutions/:id` — Pause/resume a feed (`{"paused": true|false}`; paused feeds are skipped by Plaid sync)
 - `DELETE /api/transactions/:id` — Remove transaction
 - `DELETE /api/bills/:id` — Remove bill
+- `DELETE /api/institutions/:id` — Purge a feed: institution + accounts + all their transactions/splits/balance history. Revoke Plaid access first via `POST /api/plaid/disconnect` or the next relink resurrects it
 
 ### Authenticating (how Claude calls the API)
 

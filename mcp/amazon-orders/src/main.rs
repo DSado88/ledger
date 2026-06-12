@@ -1,6 +1,7 @@
 mod models;
 mod parse;
 mod client;
+mod browser;
 mod tools;
 mod handler;
 
